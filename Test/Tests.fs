@@ -14,12 +14,12 @@ let ``ls shows the content of a directory`` () =
 [<Fact>]
 let ``mkdir creates a directory`` () =
     let root =
-        {
-            Name = "root"
-            Directories = Set.empty
-            Files = []
-            Parent = None
-        }
+        RootDirectory
+            {
+                Name = "root"
+                Directories = Set.empty
+                Files = []
+            }
 
     let directory = 
         DirectoryOperations.mkdir root "directory"
@@ -36,12 +36,12 @@ let ``touch creates a file`` () =
 [<Fact>]
 let ``cd enters a directory`` () =
     let root =
-        {
-            Name = "root"
-            Directories = Set.empty
-            Files = []
-            Parent = None
-        }
+        RootDirectory
+            {
+                Name = "root"
+                Directories = Set.empty
+                Files = []
+            }
 
     let directory = 
         DirectoryOperations.cd root "directory"

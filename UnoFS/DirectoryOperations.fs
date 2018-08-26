@@ -1,13 +1,21 @@
 module DirectoryOperations
 
 open Types
-    
+
 let private tryFindDir parent name =
-    parent.Directories |>
-    Seq.tryPick (fun x -> if x.Name = name then
-                              Some x
-                          else
-                              None)
+    match parent with 
+    | RootDirectory parent ->
+        parent.Directories |>
+            Seq.tryPick (fun x -> if x.Name = name then
+                                      Some x
+                                  else
+                                      None)
+    | ChildDirectory parent ->
+        parent.Directories |>
+            Seq.tryPick (fun x -> if x.Name = name then
+                                      Some x
+                                  else
+                                      None)
     
 let private getOrCreateDir name parent =
     match tryFindDir parent name with
@@ -16,15 +24,25 @@ let private getOrCreateDir name parent =
                       Name = name
                       Directories = Set.empty
                       Files = []
-                      Parent = Some parent
+                      Parent = parent
                   }
     
 let private moveDir destination dir =
-    { 
-        destination with 
-            Directories = 
-                destination.Directories.Add dir
-    }    
+    match destination with 
+    | RootDirectory root ->
+        RootDirectory
+            { 
+                root with 
+                    Directories = 
+                        root.Directories.Add dir
+            }
+    | ChildDirectory child ->
+        ChildDirectory
+            { 
+                child with 
+                    Directories = 
+                        child.Directories.Add dir
+            }
     
 let mkdir parent name =
     parent |>
@@ -32,6 +50,12 @@ let mkdir parent name =
     moveDir parent
 
 let cd dir name =
-    dir.Directories |>
-    Seq.tryPick (function | d when d.Name = name -> Some d
-                          | _                    -> None)
+    match dir with 
+    | RootDirectory dir ->
+        dir.Directories |>
+        Seq.tryPick (function | d when d.Name = name -> Some d
+                              | _                    -> None)
+    | ChildDirectory dir ->
+        dir.Directories |>
+        Seq.tryPick (function | d when d.Name = name -> Some d
+                              | _                    -> None)
