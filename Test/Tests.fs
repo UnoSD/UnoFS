@@ -2,18 +2,27 @@
 
 open System
 open Xunit
+open Types
 
 [<Fact>]
 let ``ls shows the content of a directory`` () =
-    let directories = 
+    let items = 
         Operations.ls "/"
     
     Assert.True(true)
 
 [<Fact>]
 let ``mkdir creates a directory`` () =
+    let root =
+        {
+            Name = "root"
+            Directories = Set.empty
+            Files = []
+            Parent = None
+        }
+
     let directory = 
-        Operations.mkdir "/" "directory"
+        DirectoryOperations.mkdir root "directory"
     
     Assert.True(true)
     
@@ -26,8 +35,16 @@ let ``touch creates a file`` () =
     
 [<Fact>]
 let ``cd enters a directory`` () =
+    let root =
+        {
+            Name = "root"
+            Directories = Set.empty
+            Files = []
+            Parent = None
+        }
+
     let directory = 
-        Operations.cd "/" "directory"
+        DirectoryOperations.cd root "directory"
     
     Assert.True(true)
     

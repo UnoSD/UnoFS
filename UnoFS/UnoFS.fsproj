@@ -6,6 +6,8 @@
 
     <ItemGroup>
         <Compile Include="Operations.fs" />
+        <Compile Include="Types.fs" />
+        <Compile Include="DirectoryOperations.fs" />
     </ItemGroup>
 
 </Project>
