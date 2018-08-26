@@ -4,5 +4,8 @@ open System
 open Xunit
 
 [<Fact>]
-let ``Test`` () =
+let ``ls / shows root directory content`` () =
+    let directories = 
+        Operations.ls "/"
+    
     Assert.True(true)
