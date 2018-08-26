@@ -16,9 +16,11 @@ let ``mkdir creates a directory`` () =
     let root =
         RootDirectory
             {
-                Name = "root"
-                Directories = Set.empty
-                Files = []
+                Content =
+                {
+                    Children = Set.empty
+                    Files = []
+                }
             }
 
     let directory = 
@@ -38,9 +40,11 @@ let ``cd enters a directory`` () =
     let root =
         RootDirectory
             {
-                Name = "root"
-                Directories = Set.empty
-                Files = []
+                Content =
+                {
+                    Children = Set.empty
+                    Files = []
+                }
             }
 
     let directory = 

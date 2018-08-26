@@ -2,30 +2,47 @@ module DirectoryOperations
 
 open Types
 
-let private tryFindDir parent name =
-    match parent with 
-    | RootDirectory parent ->
-        parent.Directories |>
-            Seq.tryPick (fun x -> if x.Name = name then
-                                      Some x
-                                  else
-                                      None)
-    | ChildDirectory parent ->
-        parent.Directories |>
-            Seq.tryPick (fun x -> if x.Name = name then
-                                      Some x
-                                  else
-                                      None)
+let private tryFindDir name directories =
+    directories |>
+    Seq.tryPick (fun x -> if x.Name = name then
+                              Some x
+                          else
+                              None)
+
+let private getContent =
+    function
+    | RootDirectory  dir -> dir.Content
+    | ChildDirectory dir -> dir.Content
+    
+let private getChildren dir =
+    dir |>
+    getContent |>
+    (fun d -> d.Children)
     
 let private getOrCreateDir name parent =
-    match tryFindDir parent name with
+    match parent |> getChildren |> tryFindDir name with
     | Some dir -> dir
     | None     -> {
                       Name = name
-                      Directories = Set.empty
-                      Files = []
+                      Content =
+                          {
+                              Children = Set.empty
+                              Files = []
+                          }
                       Parent = parent
                   }
+    
+let private withChild' dir parent dirContent =
+    {
+        dirContent with
+            Children = 
+                dirContent.Children.Add { dir with Parent = parent }
+    }
+
+let private withChild dir parent =
+    parent |>
+    getContent |>
+    withChild' dir parent
     
 let private moveDir destination dir =
     match destination with 
@@ -33,15 +50,13 @@ let private moveDir destination dir =
         RootDirectory
             { 
                 root with 
-                    Directories = 
-                        root.Directories.Add dir
+                    Content = destination |> withChild dir
             }
     | ChildDirectory child ->
         ChildDirectory
             { 
                 child with 
-                    Directories = 
-                        child.Directories.Add dir
+                    Content = destination |> withChild dir
             }
     
 let mkdir parent name =
@@ -50,12 +65,7 @@ let mkdir parent name =
     moveDir parent
 
 let cd dir name =
-    match dir with 
-    | RootDirectory dir ->
-        dir.Directories |>
-        Seq.tryPick (function | d when d.Name = name -> Some d
-                              | _                    -> None)
-    | ChildDirectory dir ->
-        dir.Directories |>
-        Seq.tryPick (function | d when d.Name = name -> Some d
-                              | _                    -> None)
+    dir |> 
+    getChildren |>
+    Seq.tryPick (function | d when d.Name = name -> Some d
+                          | _                    -> None)
