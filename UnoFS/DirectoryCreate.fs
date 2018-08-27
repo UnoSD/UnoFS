@@ -24,4 +24,4 @@ let private getOrCreateDir name tags root =
 let mkdir parent name =
     match parent with 
     | Root root   -> root       |> getOrCreateDir name Set.empty
-    | Child child -> child.Root |> getOrCreateDir name child.Parents
+    | Child child -> child.Root |> getOrCreateDir name (child.Parents.Add { Name = child.Name; Files = child.Files })
