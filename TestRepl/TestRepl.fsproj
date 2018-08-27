@@ -15,4 +15,8 @@
       <ProjectReference Include="..\UnoFS\UnoFS.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ReadLine" Version="2.0.1" />
+    </ItemGroup>
+
 </Project>
