@@ -1,4 +1,4 @@
-﻿module DirectoryChangeTest
+﻿module DirectoryChangeTests
 
 open System
 open Xunit

@@ -21,9 +21,25 @@ let cdCommand current name =
     | Some dir -> Child dir
     | None -> current
 
+let getFirstParent dir =
+    match dir with
+    | Root _ -> None
+    | Child dir -> dir.Parents |>
+                   Seq.head |>
+                   (fun tag -> tag.Name) |>
+                   Some
+
+let error () =
+    failwith "TODO"
+
+// TODO: Change from string to type
+// I.E. mkdir current { .. } instead of string
+//      cd current root.Children...
+
 let processCommand current (command : string) =
     match command with
     | command when command.StartsWith("mkdir ") -> mkdirCommand current (command.Substring("mkdir ".Length))
+    | command when command.StartsWith("cd ..") -> cdCommand current (getFirstParent current |> Option.defaultWith error)
     | command when command.StartsWith("cd ") -> cdCommand current (command.Substring("cd ".Length))
     | _ -> printfn "Invalid command"; current
 

@@ -19,12 +19,17 @@ let private getTags child =
     Option.map child.Parents.Add |>
     Option.defaultWith (fun _ -> failwith "Dangling child")
 
-let isCurrentOrParentOf child name =
-    child.Name = name ||
+let private isParentOf child name =
     child.Parents |> Set.exists (fun p -> p.Name = name)
+
+let private getTagsBefore name (tags : Set<Tag>) =
+    tags |>
+    Seq.takeWhile (fun tag -> tag.Name <> name) |>
+    Set.ofSeq
 
 let cd dir name =
     match dir with
-    | Child child when name |> isCurrentOrParentOf child -> None
-    | Child child                                        -> child.Root |> cd' name (getTags child)
-    | Root root                                          -> root       |> cd' name Set.empty
+    | Child child when child.Name = name        -> None
+    | Child child when name |> isParentOf child -> child.Root |> cd' name (child.Parents |> getTagsBefore name)
+    | Child child                               -> child.Root |> cd' name (getTags child)
+    | Root root                                 -> root       |> cd' name Set.empty
