@@ -7,98 +7,154 @@ open DirectoryChange
 open DirectoryCreate
 open DirectoryList
 
+type ChildDirectory with 
+    member this.directory     = Child this
+    member this.rootDirectory = Root  this.Root
+
+type RootDirectory with 
+    member this.directory = Root this
+
+let rootHas tagNames child =
+    tagNames |>
+    List.map (fun name -> ({ Name = name }, Set.empty)) |>
+    Map.ofList |>
+    (fun tags -> { Tags = tags }) |>
+    (=) child.Root |>
+    Assert.True
+
+let has tagNames tags =
+    tagNames |>
+    List.map (fun name -> { Name = name }) |>
+    (=) tags |>
+    Assert.True
+
+let hierarchyHas tagNames child =
+    child.Hierarchy |> has tagNames
+
+let tagIs name child =
+    child.Tag.Name = name |>
+    Assert.True
+
+let exists dir =
+    match dir with 
+    | Some (Child _)
+    | Some (Root _) -> Assert.True(true)
+    | _             -> Assert.True(false)
+
+let asChild =
+    function
+    | Some (Child c) -> c
+    | _              -> failwith "Not a child directory"
+
+let asRoot =
+    function
+    | Some (Root c) -> c
+    | _             -> failwith "Not a root directory"
+    
+type Option<'a> with
+    member this.toChild =
+        match box this with
+        | :? Option<Directory> as y -> y |> asChild
+        | _                         -> failwith "Not an option of directory"
+    member this.toRoot =
+        match box this with
+        | :? Option<Directory> as y -> y |> asRoot
+        | _                         -> failwith "Not an option of directory"
+    member this.toDirectory =
+        match box this with
+        | :? Option<Directory> as y -> y.Value
+        | _                         -> failwith "Not an option of directory"
+        
+let isNone (option : 'a option) =
+    Assert.True(option.IsNone)
+
+let isSome (option : 'a option) =
+    Assert.True(option.IsSome)
+
+let root = Root { Tags = Map.empty }
+
 [<Fact>]
 let ``Regression test`` () =
-    let root = Root { Tags = Map.empty }
-
     let a = mkdir root "a"
     
-    Assert.True(a.Tag       = { Name = "a" })
-    Assert.True(a.Hierarchy = [])
-    Assert.True(a.Root      = { Tags = Map.empty |> Map.add { Name = "a"} Set.empty })
+    a |> tagIs        "a"
+    a |> rootHas      ["a"]
+    a |> hierarchyHas []
     
-    let b = mkdir (Root a.Root) "b"
+    let b = mkdir a.rootDirectory "b"
 
-    Assert.True(b.Tag       = { Name = "b" })
-    Assert.True(b.Hierarchy = [])
-    Assert.True(b.Root      = { Tags = Map.empty |>
-                                       Map.add { Name = "a"} Set.empty |>
-                                       Map.add { Name = "b"} Set.empty })
+    b |> tagIs        "b"
+    b |> rootHas      ["a"; "b"]
+    b |> hierarchyHas []
 
-    let c = mkdir (Root b.Root) "c"
+    let c = mkdir b.rootDirectory "c"
     
-    Assert.True(c.Root      = { Tags = Map.empty |>
-                                       Map.add { Name = "a"} Set.empty |>
-                                       Map.add { Name = "b"} Set.empty |>
-                                       Map.add { Name = "c"} Set.empty })
+    c |> rootHas ["a"; "b"; "c"]
     
-    let list = ls (Root c.Root)
+    let list = ls c.rootDirectory
     
-    Assert.True((list = [ { Name = "a" }; { Name = "b" }; { Name = "c" } ]))
+    list |> has ["a"; "b"; "c"]
     
-    let a = cd (Root c.Root) "a"
+    let a = cd c.rootDirectory "a"
     
-    Assert.True(a.IsSome)
+    a |> exists
     
-    let a = (match a.Value with | Child c -> c | _ -> failwith "Not child directory")
+    let a = a.toChild
     
-    Assert.True(a.Tag = { Name = "a" }) 
-    Assert.True(a.Hierarchy = []) 
-    Assert.True(a.Root      = { Tags = Map.empty |>
-                                       Map.add { Name = "a"} Set.empty |>
-                                       Map.add { Name = "b"} Set.empty |>
-                                       Map.add { Name = "c"} Set.empty })
+    a |> tagIs        "a"
+    a |> rootHas      ["a"; "b"; "c"]
+    a |> hierarchyHas []
                                            
-    let list = ls (Child a)
+    let list = ls a.directory
     
-    Assert.True((list = [ { Name = "b" }; { Name = "c" } ]))
+    list |> has ["b"; "c"]
     
-    let b = cd (Child a) "b"
+    let b = cd a.directory "b"
     
-    let b = (match b.Value with | Child c -> c | _ -> failwith "Not child directory")
+    let b = b.toChild
     
-    Assert.True(b.Hierarchy = [ { Name = "a" } ])
+    b |> hierarchyHas ["a"]
     
-    let list = ls (Child b)
+    let list = ls b.directory
     
-    Assert.True((list = [ { Name = "c" } ]))
+    list |> has ["c"]
         
-    let c = cd (Child b) "c"
+    let c = cd b.directory "c"
         
-    let c = (match c.Value with | Child c -> c | _ -> failwith "Not child directory")
+    let c = c.toChild
     
-    Assert.True(c.Hierarchy = [ { Name = "b" }; { Name = "a" } ])
+    c |> hierarchyHas ["b"; "a"]
     
-    let list = ls (Child c)
+    let list = ls c.directory
     
-    Assert.True(list |> List.isEmpty)
+    list |> has []
         
-    let c' = cd (Child c) "c"
+    let c' = cd c.directory "c"
     
-    Assert.True(c'.IsNone)
+    c' |> isNone
     
-    let b = cd (Child c) ".."
+    let b = cd c.directory ".."
     
-    let b = (match b.Value with | Child c -> c | _ -> failwith "Not child directory")
+    let b = b.toChild
     
-    Assert.True((b.Hierarchy = [ { Name = "a" } ]))
+    b |> hierarchyHas ["a"]
     
-    let list = ls (Child b)
+    let list = ls b.directory
     
-    Assert.True((list = [ { Name = "c" } ]))
+    list |> has ["c"]
     
-    let a' = cd (Child b) "a"
+    let a' = cd b.directory "a"
     
-    Assert.True(a'.IsNone)
+    a' |> isNone
     
-    let a = cd (Child b) ".."
+    let a = cd b.directory ".."
     
-    Assert.True(a.IsSome)
+    a |> isSome
     
-    let root = cd a.Value ".."
+    let root = cd a.toDirectory ".."
     
-    let root = (match root.Value with | Root r -> r | _ -> failwith "Not root directory")
+    let root = root.toRoot
     
-    let list = ls (Root root)
+    let list = ls root.directory
     
-    Assert.True((list = [ { Name = "a" }; { Name = "b" }; { Name = "c" } ]))
+    list |> has ["a"; "b"; "c"]    
