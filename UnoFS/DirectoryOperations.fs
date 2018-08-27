@@ -2,70 +2,52 @@ module DirectoryOperations
 
 open Types
 
-let private tryFindDir name directories =
-    directories |>
-    Seq.tryPick (fun x -> if x.Name = name then
-                              Some x
-                          else
-                              None)
+let private tryFindTag name root =
+    root.Children |>
+    Seq.tryFind (fun tag -> tag.Name = name)
+    
+let private withTag dir root =
+    { root with Children = root.Children.Add { Name = dir; Files = Set.empty } }
+    
+let private allContain content (tags : Set<Tag>) =
+    tags |>
+    Set.forall (fun tag -> tag.Files.Contains content)
 
-let private getContent =
-    function
-    | RootDirectory  dir -> dir.Content
-    | ChildDirectory dir -> dir.Content
+let private filterBy tags contents =
+     contents |>
+     Set.filter (fun content -> tags |> allContain content)
     
-let private getChildren dir =
-    dir |>
-    getContent |>
-    (fun d -> d.Children)
-    
-let private getOrCreateDir name parent =
-    match parent |> getChildren |> tryFindDir name with
-    | Some dir -> dir
+let private getOrCreateDir name tags root =
+    match root |> tryFindTag name with
+    | Some tag -> {
+                      Root    = root
+                      Name    = name
+                      Files   = tag.Files |> filterBy tags
+                      Parents = tags
+                  }
     | None     -> {
-                      Name = name
-                      Content =
-                          {
-                              Children = Set.empty
-                              Files = []
-                          }
-                      Parent = parent
+                      Root    = root |> withTag name
+                      Name    = name
+                      Files   = Set.empty
+                      Parents = tags
                   }
     
-let private withChild' dir parent dirContent =
-    {
-        dirContent with
-            Children = 
-                dirContent.Children.Add { dir with Parent = parent }
-    }
-
-let private withChild dir parent =
-    parent |>
-    getContent |>
-    withChild' dir parent
-    
-let private moveDir destination dir =
-    match destination with 
-    | RootDirectory root ->
-        RootDirectory
-            { 
-                root with 
-                    Content = destination |> withChild dir
-            }
-    | ChildDirectory child ->
-        ChildDirectory
-            { 
-                child with 
-                    Content = destination |> withChild dir
-            }
-    
 let mkdir parent name =
-    parent |>
-    getOrCreateDir name |>
-    moveDir parent
+    match parent with 
+    | Root root   -> root       |> getOrCreateDir name Set.empty
+    | Child child -> child.Root |> getOrCreateDir name child.Parents
+
+let private cd' name tags root =
+    root |>
+    tryFindTag name |>
+    Option.map (fun tag -> {
+                               Root    = root
+                               Name    = tag.Name
+                               Files   = tag.Files |> filterBy tags
+                               Parents = tags.Add tag
+                           })
 
 let cd dir name =
-    dir |> 
-    getChildren |>
-    Seq.tryPick (function | d when d.Name = name -> Some d
-                          | _                    -> None)
+    match dir with
+    | Root root   -> root       |> cd' name Set.empty
+    | Child child -> child.Root |> cd' name child.Parents

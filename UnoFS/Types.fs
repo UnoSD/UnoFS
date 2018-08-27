@@ -1,41 +1,37 @@
 module Types
 
 type Content =
-    byte[]
+    {
+        Name:     string
+        Location: unit
+    }
+    
+type Tag =
+    {
+        Name:  string
+        Files: Set<Content>
+    }
     
 type File =
     {
-        Name:    string
+        Tags:    Set<Tag>
         Content: Content
     }
-    
-// With this circular dependency and immutability
-// it's impossible to make it work.
-// It's a dog chasing its own tail,
-// If I create a new dir, then I need to set
-// its parent to the old parent and I need to add
-// the child to the parent, but I also need the
-// child to have the parent with the child alredy
-// and its child needs to have the parent already
-// and so on...
-type DirectoryContent =
+
+type RootDirectory =
     {
-        Children: Set<ChildDirectory>
         Files:    File list
-    }
-    
-and RootDirectory =
-    {
-        Content: DirectoryContent
+        Children: Set<Tag>
     }
 
-and ChildDirectory =
+type ChildDirectory =
     {
         Name:    string
-        Parent:  Directory
-        Content: DirectoryContent
+        Files:   Set<Content>
+        Parents: Set<Tag>
+        Root:    RootDirectory
     }
-
-and Directory =
-    | RootDirectory of RootDirectory
-    | ChildDirectory of ChildDirectory
+   
+type Directory =
+    | Root of RootDirectory
+    | Child of ChildDirectory
