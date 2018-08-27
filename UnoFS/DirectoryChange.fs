@@ -24,27 +24,28 @@ let getRelativePath dir segment =
                                 Child { Root = c.Root; Tag = tag; Hierarchy = c.Tag :: c.Hierarchy } |>
                                 Some
 
-// Path cases:
-// /              -> TODO: MISSING!
-// /a
-// /a/b
-// a
-// a/b
-// ..
-// ../a
-// ../..
-// ../../a
-// xxxx//xxx///xx -> RemoveEmptyEntries
+let private pathFolder current segment =
+    match current with
+    | Some current -> getRelativePath current segment
+    | None -> None
 
-let cd current (name : string) =
-    let segments = 
-        name.Split('/' |> Array.singleton, StringSplitOptions.RemoveEmptyEntries) |>
-        List.ofArray
+let private getSegments (path : string) =
+    path.Split('/' |> Array.singleton, StringSplitOptions.RemoveEmptyEntries)
 
-    let folder current segment =
-        match current with
-        | Some current -> getRelativePath current segment
-        | None -> None
-
-    segments |>
-    List.fold folder (Some current)
+let private cd' path current =
+    path |>
+    getSegments |>
+    Array.fold pathFolder (Some current)
+    
+let private getBasePath workingDir (path : string) =
+    if path.StartsWith("/") then
+        match workingDir with
+        | Root root   -> Root root
+        | Child child -> Root child.Root
+    else 
+        workingDir
+    
+let cd workingDir path =
+    path |>
+    getBasePath workingDir |>
+    cd' path
