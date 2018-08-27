@@ -10,10 +10,21 @@ let private cd' name tags root =
                                Root    = root
                                Name    = tag.Name
                                Files   = tag.Files |> filterBy tags
-                               Parents = tags.Add tag
+                               Parents = tags
                            })
+
+let private getTags child =
+    child.Root |>
+    tryFindTag child.Name |>
+    Option.map child.Parents.Add |>
+    Option.defaultWith (fun _ -> failwith "Dangling child")
+
+let isCurrentOrParentOf child name =
+    child.Name = name ||
+    child.Parents |> Set.exists (fun p -> p.Name = name)
 
 let cd dir name =
     match dir with
-    | Root root   -> root       |> cd' name Set.empty
-    | Child child -> child.Root |> cd' name child.Parents
+    | Child child when name |> isCurrentOrParentOf child -> None
+    | Child child                                        -> child.Root |> cd' name (getTags child)
+    | Root root                                          -> root       |> cd' name Set.empty

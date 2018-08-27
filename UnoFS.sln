@@ -4,6 +4,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test", "Test\Test.fsproj", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnoFS", "UnoFS\UnoFS.fsproj", "{CDAFD4E1-F75B-4AD7-A726-5CB8680B7FA9}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestRepl", "TestRepl\TestRepl.fsproj", "{487E7FD5-DA69-4E60-B033-FF20198C63D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{CDAFD4E1-F75B-4AD7-A726-5CB8680B7FA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDAFD4E1-F75B-4AD7-A726-5CB8680B7FA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDAFD4E1-F75B-4AD7-A726-5CB8680B7FA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{487E7FD5-DA69-4E60-B033-FF20198C63D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{487E7FD5-DA69-4E60-B033-FF20198C63D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{487E7FD5-DA69-4E60-B033-FF20198C63D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{487E7FD5-DA69-4E60-B033-FF20198C63D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
