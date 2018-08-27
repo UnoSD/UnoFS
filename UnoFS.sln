@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test", "Test\Test.fsproj", "{DA2A8700-C9E3-4983-987D-C8E385DD6F3E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnoFS", "UnoFS\UnoFS.fsproj", "{CDAFD4E1-F75B-4AD7-A726-5CB8680B7FA9}"
