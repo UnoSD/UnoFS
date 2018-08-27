@@ -9,12 +9,11 @@ let ``cd enters a directory`` () =
     let root =
         Root
             {
-                Children = Set.empty.Add { Name = "directory"; Files = Set.empty }
-                Files = []
+                Tags = Map.empty |> Map.add { Name = "tag" } Set.empty
             }
 
     let directory = 
-        DirectoryChange.cd root "directory"
+        DirectoryChange.cd root "tag"
     
     Assert.True(directory.IsSome)
 
@@ -23,11 +22,10 @@ let ``cd does not enter a non existing directory`` () =
     let root =
         Root
             {
-                Children = Set.empty
-                Files = []
+                Tags = Map.empty
             }
 
     let directory = 
-        DirectoryChange.cd root "directory"
+        DirectoryChange.cd root "tag"
     
     Assert.True(directory.IsNone)

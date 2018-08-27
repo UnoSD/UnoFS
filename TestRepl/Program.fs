@@ -1,60 +1,56 @@
 ﻿open System
 open Types
 
-let mkdirCommand current name =
+let (|StartsWith|_|) (value : string) (text : string) =
+    if text.StartsWith(value) then
+        Some (text.Substring(value.Length))
+    else
+        None
+
+let mkdirCommand workingDir name =
     let dir = 
-        DirectoryCreate.mkdir current name
+        DirectoryCreate.mkdir workingDir name
     
     printfn "%A" dir
     
-    match current with
-    | Root _ -> Root dir.Root
-    | Child parent -> Child { parent with Root = dir.Root }
+    match workingDir with
+    | Root _       -> Root dir.Root
+    | Child oldDir -> Child { oldDir with Root = dir.Root }
 
-let cdCommand current name =
-    let dir = 
-        DirectoryChange.cd current name
+let lsCommand workingDir =
+    let dirs = 
+        DirectoryList.ls workingDir
         
+    printfn "%A" dirs
+    
+    workingDir
+
+let cdCommand workingDir path =
+    let dir =
+        DirectoryChange.cd workingDir path
+    
     printfn "%A" dir
     
     match dir with
-    | Some dir -> Child dir
-    | None -> current
+    | Some dir -> dir
+    | None     -> workingDir
 
-let getFirstParent dir =
-    match dir with
-    | Root _ -> None
-    | Child dir -> dir.Parents |>
-                   Seq.head |>
-                   (fun tag -> tag.Name) |>
-                   Some
-
-let error () =
-    failwith "TODO"
-
-// TODO: Change from string to type
-// I.E. mkdir current { .. } instead of string
-//      cd current root.Children...
-
-let processCommand current (command : string) =
+let processCommand workingDir (command : string) =
     match command with
-    | command when command.StartsWith("mkdir ") -> mkdirCommand current (command.Substring("mkdir ".Length))
-    | command when command.StartsWith("cd ..") -> cdCommand current (getFirstParent current |> Option.defaultWith error)
-    | command when command.StartsWith("cd ") -> cdCommand current (command.Substring("cd ".Length))
-    | _ -> printfn "Invalid command"; current
+    | StartsWith "mkdir " rest -> mkdirCommand workingDir rest
+    | "ls"                     -> lsCommand workingDir
+    | StartsWith "cd " rest    -> cdCommand workingDir rest
+    | _                        -> printfn "Invalid command"; workingDir
 
-let rec replLoop current =
+let rec replLoop workingDir =
     match Console.ReadLine() with
     | "exit"  -> ()
-    | command -> processCommand current command |>
+    | command -> processCommand workingDir command |>
                  replLoop
 
 [<EntryPoint>]
 let main _ =
-    {
-        Children = Set.empty
-        Files = []
-    } |>
+    { Tags = Map.empty } |>
     Root |>
     replLoop 
     

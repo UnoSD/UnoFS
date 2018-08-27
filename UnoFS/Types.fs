@@ -1,6 +1,6 @@
 module Types
 
-type Content =
+type File =
     {
         Name:     string
         Location: unit
@@ -8,28 +8,18 @@ type Content =
     
 type Tag =
     {
-        Name:  string
-        Files: Set<Content>
+        Name: string
     }
     
-type File =
-    {
-        Tags:    Set<Tag>
-        Content: Content
-    }
-
 type RootDirectory =
     {
-        Files:    File list
-        Children: Set<Tag>
+        Tags: Map<Tag, Set<File>>
     }
 
 type ChildDirectory =
     {
-        Name:    string
-        Files:   Set<Content>
-        Parents: Set<Tag>
-        Root:    RootDirectory
+        Tags: Tag list (* should be an ordered set *)
+        Root: RootDirectory
     }
    
 type Directory =

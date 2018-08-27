@@ -1,27 +1,18 @@
 module DirectoryCreate
 
 open Types
-open DirectoryOperations
     
-let private withTag dir root =
-    { root with Children = root.Children.Add { Name = dir; Files = Set.empty } }
-    
-let private getOrCreateDir name tags root =
-    match root |> tryFindTag name with
-    | Some tag -> {
-                      Root    = root
-                      Name    = name
-                      Files   = tag.Files |> filterBy tags
-                      Parents = tags
-                  }
-    | None     -> {
-                      Root    = root |> withTag name
-                      Name    = name
-                      Files   = Set.empty
-                      Parents = tags
-                  }
+let toDirectory root parentTags tag =
+    {
+        Tags = tag :: (parentTags |> List.except (tag |> List.singleton))
+        Root = {
+                   root with
+                       Tags = root.Tags |>
+                              Map.add tag Set.empty
+               }
+    }
     
 let mkdir parent name =
     match parent with 
-    | Root root   -> root       |> getOrCreateDir name Set.empty
-    | Child child -> child.Root |> getOrCreateDir name (child.Parents.Add { Name = child.Name; Files = child.Files })
+    | Root root   -> { Name = name } |> toDirectory root       []
+    | Child child -> { Name = name } |> toDirectory child.Root child.Tags
