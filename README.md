@@ -24,6 +24,15 @@ ls // Outputs [{Name = "b";}; {Name = "c";}]
 cd ..
 cd c
 ls // Outputs [{Name = "a";}; {Name = "b";}]
+cd ..
+
+// Any order
+
+cd a/b/c
+ls // Outputs []
+cd ../../..
+cd c/a
+ls // Outputs [{Name = "b";}]
 
 // You get the gist...
 ```
