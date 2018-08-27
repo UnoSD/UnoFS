@@ -22,7 +22,7 @@ let ``mkdir creates a directory`` () =
         Root root
 
     let directory = 
-        DirectoryOperations.mkdir parent "directory"
+        DirectoryCreate.mkdir parent "directory"
     
     let expectedRoot =
         {
@@ -56,7 +56,7 @@ let ``cd enters a directory`` () =
             }
 
     let directory = 
-        DirectoryOperations.cd root "directory"
+        DirectoryChange.cd root "directory"
     
     Assert.True(directory.IsSome)
 
@@ -70,7 +70,7 @@ let ``cd does not enter a non existing directory`` () =
             }
 
     let directory = 
-        DirectoryOperations.cd root "directory"
+        DirectoryChange.cd root "directory"
     
     Assert.True(directory.IsNone)
     

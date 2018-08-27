@@ -8,6 +8,8 @@
         <Compile Include="Operations.fs" />
         <Compile Include="Types.fs" />
         <Compile Include="DirectoryOperations.fs" />
+        <Compile Include="DirectoryCreate.fs" />
+        <Compile Include="DirectoryChange.fs" />
     </ItemGroup>
 
 </Project>
