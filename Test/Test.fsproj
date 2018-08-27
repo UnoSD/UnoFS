@@ -9,6 +9,7 @@
     <ItemGroup>
         <Compile Include="DirectoryChangeTests.fs" />
         <Compile Include="DirectoryCreateTests.fs" />
+        <Compile Include="RegressionTest.fs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -17,8 +17,9 @@ let tag =
     
 let directory =
     {
-        Tags = [ tag ]
-        Root = { root with Tags = root.Tags |> Map.add tag Set.empty }
+        Tag       = tag
+        Root      = { root with Tags = root.Tags |> Map.add tag Set.empty }
+        Hierarchy = []
     }
 
 let directory' = 
@@ -37,8 +38,8 @@ let ``mkdir creates a directory under root`` () =
                     Map.add { Name = "tag" } Set.empty
         }
     
-    Assert.True(directory.Tags.Length = 1)
-    Assert.True(directory.Tags.Head.Name = "tag")
+    Assert.True(directory.Hierarchy.IsEmpty)
+    Assert.True(directory.Tag.Name = "tag")
     Assert.True(directory.Root = expectedRoot)
     
 [<Fact>]
@@ -54,7 +55,7 @@ let ``mkdir creates a directory under another directory`` () =
                     Map.add { Name = "subDirectory" } Set.empty
         }
     
-    Assert.True(subDirectory.Tags.Length = 2)
-    Assert.True(subDirectory.Tags.Head.Name = "subDirectory")
-    Assert.True(subDirectory.Tags.Tail = directory.Tags)
+    Assert.True(subDirectory.Hierarchy.Length = 1)
+    Assert.True(subDirectory.Tag.Name = "subDirectory")
+    Assert.True(subDirectory.Hierarchy = directory.Tag :: directory.Hierarchy)
     Assert.True(subDirectory.Root = expectedRoot)

@@ -12,4 +12,4 @@ let ls' (root : RootDirectory) excludeTags =
 let ls dir =
     match dir with
     | Root root   -> ls' root       []
-    | Child child -> ls' child.Root child.Tags
+    | Child child -> ls' child.Root (child.Tag :: child.Hierarchy)

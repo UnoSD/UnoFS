@@ -18,8 +18,9 @@ type RootDirectory =
 
 type ChildDirectory =
     {
-        Tags: Tag list (* should be an ordered set *)
-        Root: RootDirectory
+        Tag:       Tag
+        Root:      RootDirectory
+        Hierarchy: Tag list (* should be an ordered set *)
     }
    
 type Directory =
