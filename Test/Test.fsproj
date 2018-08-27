@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="DirectoryChangeTest.fs" />
+        <Compile Include="DirectoryCreateTests.fs" />
         <Compile Include="Tests.fs" />
     </ItemGroup>
 
