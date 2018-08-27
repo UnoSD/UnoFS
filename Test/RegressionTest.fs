@@ -71,7 +71,8 @@ let isNone (option : 'a option) =
 let isSome (option : 'a option) =
     Assert.True(option.IsSome)
 
-let root = Root { Tags = Map.empty }
+let root =
+    Root { Tags = Map.empty }
 
 [<Fact>]
 let ``Regression test`` () =
@@ -158,3 +159,17 @@ let ``Regression test`` () =
     let list = ls root.directory
     
     list |> has ["a"; "b"; "c"]    
+
+    let a = cd root.directory "b/c/a"
+    
+    let a = a.toChild
+    
+    a |> tagIs "a"
+    a |> hierarchyHas ["c"; "b"]
+    
+    let a = cd a.directory "../../a"
+    
+    let a = a.toChild
+    
+    a |> tagIs        "a"
+    a |> hierarchyHas ["b"]
