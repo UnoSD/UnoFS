@@ -2,12 +2,26 @@ module DirectoryList
 
 open Types
 
-let ls' (root : RootDirectory) excludeTags =
+let rec findFilesWithAllTags list files =
+    match list with 
+    | []           -> files
+    | (_, f) :: xs -> files |>
+                      Set.intersect f |>
+                      findFilesWithAllTags xs
+
+let private ls' root currentTags =
     root.Tags |>
-    Map.toSeq |>
-    Seq.map fst |>
-    Seq.filter (fun tag -> excludeTags |> List.contains tag |> not) |>
-    Seq.toList
+    Map.toList |>
+    List.groupBy (fun (tag, files) -> currentTags |> List.contains tag) |>
+    List.collect (fun (areCurrent, map) -> match areCurrent with 
+                                           | false -> map |>
+                                                      List.map fst |>
+                                                      List.map TagContent
+                                           | true  -> map.Head |>
+                                                      snd |>
+                                                      findFilesWithAllTags map.Tail |>
+                                                      Set.map (fun file -> FileContent file) |>
+                                                      Set.toList)
 
 let ls dir =
     match dir with

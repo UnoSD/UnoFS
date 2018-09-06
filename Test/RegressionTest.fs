@@ -24,12 +24,12 @@ let rootHas tagNames child =
 
 let has tagNames tags =
     tagNames |>
-    List.map (fun name -> { Name = name }) |>
+    List.map (fun name -> TagContent { Name = name }) |>
     (=) tags |>
     Assert.True
 
 let hierarchyHas tagNames child =
-    child.Hierarchy |> has tagNames
+    child.Hierarchy |> List.map TagContent |> has tagNames
 
 let tagIs name child =
     child.Tag.Name = name |>

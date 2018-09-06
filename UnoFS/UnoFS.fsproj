@@ -9,6 +9,7 @@
         <Compile Include="DirectoryCreate.fs" />
         <Compile Include="DirectoryChange.fs" />
         <Compile Include="DirectoryList.fs" />
+        <Compile Include="FileCreate.fs" />
     </ItemGroup>
 
 </Project>

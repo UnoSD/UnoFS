@@ -30,9 +30,20 @@ let cdCommand workingDir path =
     | Some dir -> dir
     | None     -> workingDir
 
+let touchCommand workingDir name =
+    let dir =
+        FileCreate.touch workingDir name
+        
+    printfn "%A" dir
+    
+    match dir with
+    | Some dir -> dir
+    | None     -> workingDir
+
 let processCommand workingDir (command : string) =
     match command with
     | StartsWith "mkdir " rest -> mkdirCommand workingDir rest
     | "ls"                     -> lsCommand workingDir
     | StartsWith "cd " rest    -> cdCommand workingDir rest
+    | StartsWith "touch " rest -> touchCommand workingDir rest
     | _                        -> printfn "Invalid command"; workingDir

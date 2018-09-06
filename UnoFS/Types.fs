@@ -26,3 +26,7 @@ type ChildDirectory =
 type Directory =
     | Root of RootDirectory
     | Child of ChildDirectory
+    
+type Content =
+    | TagContent of Tag
+    | FileContent of File

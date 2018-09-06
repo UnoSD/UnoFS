@@ -3,7 +3,7 @@ module ReadLineSetup
 open System
 
 let private commands =
-    [| "ls"; "exit"; "mkdir "; "cd " |]
+    [| "ls"; "exit"; "mkdir "; "cd "; "touch " |]
 
 type Handler () =
     interface IAutoCompleteHandler with 
